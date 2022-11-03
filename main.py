@@ -163,74 +163,6 @@ def turn( a, b, c ):
 # Build a convex hull from a set of point
 #
 # Use the method described in class
-def hull_merge(points1, points2):
-    ''' ([list of points], [list of points]) -> Combined list of points on hull'''
-    for p in points1+points2: #Unhighlight all points
-      p.highlight = False
-      
-    point1 = Point((-1,-1))             #Create arbitrariy points for comparison 
-    point2 = Point((windowWidth*r,-1))
-
-    for point in points1:               #Find closest right and closest left point
-      if point.x > point1.x:
-        point1 = point
-    for point in points2:
-      if point.x < point2.x:
-        point2 = point
-        
-        
-    pointU1,pointD1 = point1,point1    #Create duplicates to preserve original as when stepping up and down they can change
-    pointU2,pointD2 = point2,point2
-    
-    try:                               #If we step to a point where there is only 1 point on the left hull, there is no cw/ccwPoints, but we may proceed
-      while turn(pointU1.ccwPoint,pointU1,pointU2)==1 or turn(pointU1,pointU2,pointU2.cwPoint)==1:
-        if  turn(pointU1.ccwPoint,pointU1,pointU2)==1:  #Should we step up on the left?
-          tempP = pointU1                 #Stepping and removing unwanted arrows
-          pointU1 = pointU1.ccwPoint
-          pointU1.cwPoint = None
-          tempP.ccwPoint = None
-          points1.remove(tempP)
-        else:                                           #Or the right?
-          tempP = pointU2                 #Stepping and removing unwanted arrows
-          pointU2 = pointU2.cwPoint
-          pointU2.ccwPoint = None
-          tempP.cwPoint = None
-          points2.remove(tempP)
-    except:
-      pass
-
-    points1.append(point1)  #Appending original points incase they were discarded when stepping up, 
-    points2.append(point2)  #May cause duplicates but does not effect program performance
-
-    try:           #Same as above but for stepping down
-      while turn(pointD1.cwPoint,pointD1,pointD2)==2 or turn(pointD1,pointD2,pointD2.ccwPoint)==2:
-        if  turn(pointD1.cwPoint,pointD1,pointD2)==2:
-          tempP = pointD1
-          pointD1 = pointD1.cwPoint
-          pointD1.ccwPoint = None
-          tempP.cwPoint = None
-          points1.remove(tempP)
-        else:
-          tempP = pointD2
-          pointD2 = pointD2.ccwPoint
-          pointD2.cwPoint = None
-          tempP.ccwPoint = None
-          points2.remove(tempP)     
-    except:
-      pass
-    
-    pointU1.cwPoint = pointU2      #Creating connections between left and right hulls points after stepping
-    pointU2.ccwPoint = pointU1     #Must be done at end as doing top half in between stepping can cause errors
-    pointD1.ccwPoint = pointD2
-    pointD2.cwPoint = pointD1
-
-    for p in points1+points2:     #Display Connection
-      p.highlight = True
-    display(wait = True)
-    
-    for p in points1+points2:     #Unhighlight points not in focus
-      p.highlight = False
-    return points1 + points2
 def buildHull( points ):
 
     # Handle base cases of two or three points
@@ -243,31 +175,6 @@ def buildHull( points ):
         return points
 
     elif len(points)==3:
-#Needed seperate base case for 3 points as there are multiple orientations that need 3 points to examine
-#       if turn(points[0],points[1],points[2]) == 1:   #If the 3 points make a right turn, they should be connected ccw
-#         for i in range(len(points)):
-#           points[i].highlight = True
-#           if points[i] == points[-1]:            
-#             points[i].ccwPoint = points[0]
-#           else:
-#             points[i].ccwPoint = points[i+1]
-#             points[i].cwPoint = points[i-1]
-#       elif turn(points[0],points[1],points[2]) == 2: #If the 3 points do not make a right turn, connected cw
-#         for i in range(len(points)):
-#           points[i].highlight = True
-#           if points[i] == points[-1]:            
-#             points[i].cwPoint = points[0]
-#           else:
-#             points[i].cwPoint = points[i+1]
-#             points[i].ccwPoint = points[i-1]
-#       else: #Otherwise they are colinear
-#         for i in range(len(points)):
-#           points[i].highlight = True
-#           if points[i] == points[-1]:
-#             points[i].ccwPoint = points[0]
-#           else:
-#             points[i].cwPoint = points[i+1]
-#             points[i].ccwPoint = points[i-1]
 
        for i in range(len(points)):
          points[i].highlight = True
