@@ -169,10 +169,8 @@ def buildHull( points ):
     #
     # [YOUR CODE HERE]
     if len(points)==2: # If there are only two points
-        points[0].ccwPoint,points[0].cwPoint,points[0].highlight = points[1],points[1],True
-        points[1].ccwPoint,points[1].cwPoint,points[1].highlight = points[0],points[0],True
-        display(wait = True)
-        return points
+        points[0].ccwPoint, points[0].cwPoint,points[0].highlight = points[1], points[1],True
+        points[1].ccwPoint, points[1].cwPoint,points[1].highlight = points[0], points[0],True
 
     elif len(points)==3: # If there are only three points
 
@@ -194,9 +192,37 @@ def buildHull( points ):
            points[0].ccwPoint,points[0].cwPoint = points[1],points[1]
            points[1].ccwPoint,points[1].cwPoint = points[0],points[2]
            points[2].ccwPoint,points[2].cwPoint = points[1],points[1]
+    
+    else:
+        # get the left half of the points array, and call recursively
+        leftSide = points[:len(points)//2]
+        buildHull(leftSide)
 
-       display(wait = True)
-       return points
+        # get the right half of the points array, and call recursively
+        rightSide = points[len(points)//2:]
+        buildHull(rightSide)
+
+        # Get the rightmost point of the left section, and leftmost point of the right section
+        rightmost = leftSide[-1]
+        leftmost = rightSide[0]
+
+        # Keep track of points to delete when executing walking algorithm
+        toDelete = []
+        # If we have a total array larger than 3, we know we will need to delete both center points
+        total = len(leftSide) + len(rightSide)
+        if total > 3:
+            toDelete.extend([rightmost, leftmost])
+        
+        # The walking algorithm
+        turnright=turn(leftmost.ccwPoint, leftmost, rightmost)
+        turnleft=turn(rightmost.ccwPoint, rightmost, leftmost)
+        while (turnright == 1 or turnleft == 1)
+            
+            if (turnright == 1)
+                leftmost == 
+        
+            turnright=turn(leftmost.ccwPoint, leftmost, rightmost)
+            turnleft=turn(rightmost.ccwPoint, rightmost, leftmost)
     #
     # After you get the hull-merge working, do the following: For each
     # point that was removed from the convex hull in a merge, set that
@@ -395,7 +421,7 @@ def main():
 
     # Read the points
 
-    with open( "pointstest", 'rb' ) as f:
+    with open( "points1", 'rb' ) as f:
       allPoints = [ Point( line.split(b' ') ) for line in f.readlines() ]
 
     # Get bounding box of points
