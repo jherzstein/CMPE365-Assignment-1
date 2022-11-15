@@ -395,7 +395,7 @@ def main():
 
     # Read the points
 
-    with open( "points1", 'rb' ) as f:
+    with open( "pointstest", 'rb' ) as f:
       allPoints = [ Point( line.split(b' ') ) for line in f.readlines() ]
 
     # Get bounding box of points
