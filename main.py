@@ -168,29 +168,29 @@ def buildHull( points ):
     # Handle base cases of two or three points
     #
     # [YOUR CODE HERE]
-    if len(points)==2:
+    if len(points)==2: # If there are only two points
         points[0].ccwPoint,points[0].cwPoint,points[0].highlight = points[1],points[1],True
         points[1].ccwPoint,points[1].cwPoint,points[1].highlight = points[0],points[0],True
         display(wait = True)
         return points
 
-    elif len(points)==3:
+    elif len(points)==3: # If there are only three points
 
        for i in range(len(points)):
          points[i].highlight = True
-         if turn(points[0],points[1],points[2]) == 1:
+         if turn(points[0],points[1],points[2]) == 1: # right turn
              if points[i] == points[2]:
                points[i].ccwPoint = points[0]
              else:
                points[i].ccwPoint = points[i+1]
                points[i].cwPoint = points[i-1]
-         elif turn(points[0],points[1],points[2]) == 2:
+         elif turn(points[0],points[1],points[2]) == 2: # left turn
              if points[i] == points[2]:
                points[i].cwPoint = points[0]
              else:
                points[i].cwPoint = points[i+1]
                points[i].ccwPoint = points[i-1]
-         else:
+         else: # The points are colinear
            points[0].ccwPoint,points[0].cwPoint = points[1],points[1]
            points[1].ccwPoint,points[1].cwPoint = points[0],points[2]
            points[2].ccwPoint,points[2].cwPoint = points[1],points[1]
