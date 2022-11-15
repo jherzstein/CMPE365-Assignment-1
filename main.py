@@ -216,10 +216,9 @@ def buildHull( points ):
         # The walking algorithm
         turnright=turn(leftmost.ccwPoint, leftmost, rightmost)
         turnleft=turn(rightmost.ccwPoint, rightmost, leftmost)
-        while (turnright == 1 or turnleft == 1)
-            
-            if (turnright == 1)
-                leftmost == 
+        while (turnright == 1 or turnleft == 1):
+            if (turnright == 1):
+                pass
         
             turnright=turn(leftmost.ccwPoint, leftmost, rightmost)
             turnleft=turn(rightmost.ccwPoint, rightmost, leftmost)
