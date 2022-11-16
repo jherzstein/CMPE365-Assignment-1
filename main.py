@@ -213,15 +213,16 @@ def buildHull( points ):
         if total > 3:
             toDelete.extend([rightmost, leftmost])
         
-        # The walking algorithm
-        turnright=turn(leftmost.ccwPoint, leftmost, rightmost)
-        turnleft=turn(rightmost.ccwPoint, rightmost, leftmost)
+        # The walking algorithm #
+        turnright = turn(leftmost.ccwPoint, leftmost, rightmost)
+        turnleft = turn(rightmost.ccwPoint, rightmost, leftmost)
+
         while (turnright == 1 or turnleft == 1):
             if (turnright == 1):
                 pass
         
-            turnright=turn(leftmost.ccwPoint, leftmost, rightmost)
-            turnleft=turn(rightmost.ccwPoint, rightmost, leftmost)
+            turnright = turn(leftmost.ccwPoint, leftmost, rightmost)
+            turnleft = turn(rightmost.ccwPoint, rightmost, leftmost)
     #
     # After you get the hull-merge working, do the following: For each
     # point that was removed from the convex hull in a merge, set that
