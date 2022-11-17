@@ -194,6 +194,11 @@ def buildHull( points ):
            points[2].ccwPoint,points[2].cwPoint = points[1],points[1]
     
     else:
+        rightWalkUp = None
+        leftWalkUp = None
+        rightWalkDown = None
+        rightWalkDown = None
+
         # get the left half of the points array, and call recursively
         leftSide = points[:len(points)//2]
         buildHull(leftSide)
@@ -211,18 +216,89 @@ def buildHull( points ):
         # If we have a total array larger than 3, we know we will need to delete both center points
         total = len(leftSide) + len(rightSide)
         if total > 3:
-            toDelete.extend([rightmost, leftmost])
+          toDelete.extend([rightmost, leftmost])
         
         # The walking algorithm #
-        turnright = turn(leftmost.ccwPoint, leftmost, rightmost)
-        turnleft = turn(rightmost.ccwPoint, rightmost, leftmost)
+        turnRight = turn(leftmost.ccwPoint, leftmost, rightmost)
+        turnLeft = turn(rightmost.ccwPoint, rightmost, leftmost)
 
-        while (turnright == 1 or turnleft == 1):
-            if (turnright == 1):
-                pass
-        
-            turnright = turn(leftmost.ccwPoint, leftmost, rightmost)
-            turnleft = turn(rightmost.ccwPoint, rightmost, leftmost)
+        while True: 
+            if (turnRight == 1):
+                leftmost = leftmost.ccwPoint
+                if total > 3:
+                  toDelete.append(leftmost)
+            elif (turnLeft == 1):
+                rightmost = rightmost.cwPoint
+                if total > 3:
+                    toDelete.append(rightmost)
+            else:
+                break   
+            turnRight = turn(leftmost.ccwPoint, leftmost, rightmost)
+            turnLeft = turn(rightmost.ccwPoint, rightmost, leftmost)
+
+        if leftmost in toDelete:
+            toDelete.remove(leftmost)
+        if rightmost in toDelete:
+            toDelete.remove(rightmost)
+
+        i=0
+        while i < len(leftSide):
+            if (leftmost.x == leftSide[i].x and leftmost.y == leftmost[i].y):
+                leftWalkUp = i
+            i=i+1
+        j=0
+        while j < len(rightSide):
+            if (rightmost.x == rightSide[j].x and rightmost.y == rightmost[j].y):
+                rightWalkUp = j
+            j=j+1
+                
+
+        rightmost = leftSide[-1]
+        leftmost = rightSide[0]
+
+        turnRight = turn(leftmost.ccwPoint, leftmost, rightmost)
+        turnLeft = turn(rightmost.ccwPoint, rightmost, leftmost)
+
+        while True: 
+            if (turnRight == 1):
+                leftmost = leftmost.ccwPoint
+                if total > 3:
+                  toDelete.append(leftmost)
+            elif (turnLeft == 1):
+                rightmost = rightmost.cwPoint
+                if total > 3:
+                    toDelete.append(rightmost)
+            else:
+                break   
+            turnRight = turn(leftmost.ccwPoint, leftmost, rightmost)
+            turnLeft = turn(rightmost.ccwPoint, rightmost, leftmost)
+
+        if leftmost in toDelete:
+            toDelete.remove(leftmost)
+        if rightmost in toDelete:
+            toDelete.remove(rightmost)
+
+        i=0
+        while i < len(leftSide):
+            if (leftmost.x == leftSide[i].x and leftmost.y == leftmost[i].y):
+                leftWalkDown = i
+            i=i+1
+        j=0
+        while j < len(rightSide):
+            if (rightmost.x == rightSide[j].x and rightmost.y == rightmost[j].y):
+                rightWalkDown = j
+            j=j+1
+
+        leftSide[leftWalkUp].cwPoint = rightSide[rightWalkUp] 
+        rightSide[rightWalkUp].ccwPoint = leftSide[leftWalkUp]
+        leftSide[leftWalkDown].ccwPoint = rightSide[rightWalkDown] 
+        rightSide[rightWalkDown].cwPoint = leftSide[leftWalkDown] 
+
+        k=0
+        while k < len(toDelete):
+            toDelete[k].cwPoint = None
+            toDelete[k].ccwPoint = None
+            k=k+1
     #
     # After you get the hull-merge working, do the following: For each
     # point that was removed from the convex hull in a merge, set that
