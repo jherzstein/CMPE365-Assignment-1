@@ -159,45 +159,70 @@ def turn( a, b, c ):
     else:
         return COLLINEAR
 
+def mergeHull(leftSide, rightSide):
+
+    # start by finding closest points of the center for both hulls
+    top_left = leftSide[-1]
+    top_right = rightSide[0]
+    btm_left = top_left
+    btm_right = top_right
+
+    not_convex = True
+
+    # Walking algorithm
+    # keep going until we can create a top convex angle
+    while(not_convex):
+        # assume we can make a convex angle
+        not_convex = False
+
+        # rotate top_left point until we can no longer make a right turn
+        while turn(top_right, top_left, top_left.ccwPoint) != 1:
+            not_convex = True
+            top_left = top_left.ccwPoint
+
+        # rotate top_right point until we can no longer make a left turn
+        while turn(top_left, top_right, top_right.cwPoint) != 2:
+            not_convex = True
+            top_right = top_right.cwPoint
+  
+    # Same idea for the bottom points:
+    # keep going until we can create a bottom convex angle
+    not_convex = True
+    while(not_convex):
+        not_convex = False
+        while turn(btm_left, btm_right, btm_right.ccwPoint) != 1:
+            not_convex = True
+            btm_right = btm_right.ccwPoint
+
+        while turn(btm_right, btm_left, btm_left.cwPoint) != 2:
+            not_convex = True
+            btm_left = btm_left.cwPoint
+
+    btm_left.ccwPoint, btm_right.cwPoint = btm_right, btm_left
+    top_left.cwPoint, top_right.ccwPoint = top_right, top_left
+    return top_left # used to walk through the hull later to delete other ptrs
 
 # Build a convex hull from a set of point
-#
 # Use the method described in class
 def buildHull( points ):
 
-    # Handle base cases of two or three points
-    #
-    # [YOUR CODE HERE]
-    if len(points)==2: # If there are only two points
-        points[0].ccwPoint, points[0].cwPoint,points[0].highlight = points[1], points[1],True
-        points[1].ccwPoint, points[1].cwPoint,points[1].highlight = points[0], points[0],True
+    if len(points) == 2: # If there are only two points: set pointers manually
+        points[0].ccwPoint, points[0].cwPoint = points[1], points[1]
+        points[1].ccwPoint, points[1].cwPoint = points[0], points[0]
 
-    elif len(points)==3: # If there are only three points
-
-       for i in range(len(points)):
-         points[i].highlight = True
-         if turn(points[0],points[1],points[2]) == 1: # right turn
-             if points[i] == points[2]:
-               points[i].ccwPoint = points[0]
-             else:
-               points[i].ccwPoint = points[i+1]
-               points[i].cwPoint = points[i-1]
-         elif turn(points[0],points[1],points[2]) == 2: # left turn
-             if points[i] == points[2]:
-               points[i].cwPoint = points[0]
-             else:
-               points[i].cwPoint = points[i+1]
-               points[i].ccwPoint = points[i-1]
-         else: # The points are colinear
-           points[0].ccwPoint,points[0].cwPoint = points[1],points[1]
-           points[1].ccwPoint,points[1].cwPoint = points[0],points[2]
-           points[2].ccwPoint,points[2].cwPoint = points[1],points[1]
+    elif len(points) == 3: # If there are only three points: set the pointers manually
+        # if we have a left turn:
+        if turn(points[0], points[1], points[2]) == 1:
+            points[0].ccwPoint, points[1].ccwPoint = points[1], points[2]
+            points[0].cwPoint, points[2].ccwPoint = points[2], points[0]
+            points[1].cwPoint, points[2].cwPoint = points[0], points[1]
+        else:
+            points[0].cwPoint, points[1].cwPoint = points[1], points[2]
+            points[2].cwPoint, points[0].ccwPoint = points[0], points[2]
+            points[1].ccwPoint, points[2].ccwPoint  = points[0], points[1]
     
-    else:
-        rightWalkUp = None
-        leftWalkUp = None
-        rightWalkDown = None
-        rightWalkDown = None
+    # If we have more than 3 points, divide and conquer
+    elif len(points) > 3:
 
         # get the left half of the points array, and call recursively
         leftSide = points[:len(points)//2]
@@ -207,135 +232,26 @@ def buildHull( points ):
         rightSide = points[len(points)//2:]
         buildHull(rightSide)
 
-        # Get the rightmost point of the left section, and leftmost point of the right section
-        rightmost = leftSide[-1]
-        leftmost = rightSide[0]
-
-        # Keep track of points to delete when executing walking algorithm
-        toDelete = []
-        # If we have a total array larger than 3, we know we will need to delete both center points
-        total = len(leftSide) + len(rightSide)
-        if total > 3:
-          toDelete.extend([rightmost, leftmost])
-        
-        # The walking algorithm #
-        turnRight = turn(leftmost.ccwPoint, leftmost, rightmost)
-        turnLeft = turn(rightmost.ccwPoint, rightmost, leftmost)
-
-        while True: 
-            if (turnRight == 1):
-                leftmost = leftmost.ccwPoint
-                if total > 3:
-                  toDelete.append(leftmost)
-            elif (turnLeft == 1):
-                rightmost = rightmost.cwPoint
-                if total > 3:
-                    toDelete.append(rightmost)
-            else:
-                break   
-            turnRight = turn(leftmost.ccwPoint, leftmost, rightmost)
-            turnLeft = turn(rightmost.ccwPoint, rightmost, leftmost)
-
-        if leftmost in toDelete:
-            toDelete.remove(leftmost)
-        if rightmost in toDelete:
-            toDelete.remove(rightmost)
-
-        i=0
-        while i < len(leftSide):
-            if (leftmost.x == leftSide[i].x and leftmost.y == leftmost[i].y):
-                leftWalkUp = i
-            i=i+1
-        j=0
-        while j < len(rightSide):
-            if (rightmost.x == rightSide[j].x and rightmost.y == rightmost[j].y):
-                rightWalkUp = j
-            j=j+1
-                
-
-        rightmost = leftSide[-1]
-        leftmost = rightSide[0]
-
-        turnRight = turn(leftmost.ccwPoint, leftmost, rightmost)
-        turnLeft = turn(rightmost.ccwPoint, rightmost, leftmost)
-
-        while True: 
-            if (turnRight == 1):
-                leftmost = leftmost.ccwPoint
-                if total > 3:
-                  toDelete.append(leftmost)
-            elif (turnLeft == 1):
-                rightmost = rightmost.cwPoint
-                if total > 3:
-                    toDelete.append(rightmost)
-            else:
-                break   
-            turnRight = turn(leftmost.ccwPoint, leftmost, rightmost)
-            turnLeft = turn(rightmost.ccwPoint, rightmost, leftmost)
-
-        if leftmost in toDelete:
-            toDelete.remove(leftmost)
-        if rightmost in toDelete:
-            toDelete.remove(rightmost)
-
-        i=0
-        while i < len(leftSide):
-            if (leftmost.x == leftSide[i].x and leftmost.y == leftmost[i].y):
-                leftWalkDown = i
-            i=i+1
-        j=0
-        while j < len(rightSide):
-            if (rightmost.x == rightSide[j].x and rightmost.y == rightmost[j].y):
-                rightWalkDown = j
-            j=j+1
-
-        leftSide[leftWalkUp].cwPoint = rightSide[rightWalkUp] 
-        rightSide[rightWalkUp].ccwPoint = leftSide[leftWalkUp]
-        leftSide[leftWalkDown].ccwPoint = rightSide[rightWalkDown] 
-        rightSide[rightWalkDown].cwPoint = leftSide[leftWalkDown] 
-
-        k=0
-        while k < len(toDelete):
-            toDelete[k].cwPoint = None
-            toDelete[k].ccwPoint = None
-            k=k+1
-    #
-    # After you get the hull-merge working, do the following: For each
-    # point that was removed from the convex hull in a merge, set that
-    # point's CCW and CW pointers to None.  You'll see that the arrows
-    # from interior points disappear after you do this.
-    #
-    # [YOUR CODE HERE]
-#    mid = len(points)//2                  #Mid point of current set of points
-#    return(hull_merge(buildHull(points[:mid]),buildHull(points[mid:])))
-    # You can do the following to help in debugging.  This highlights
-    # all the points, then shows them, then pauses until you press
-    # 'p'.  While paused, you can click on a point and its coordinates
-    # will be printed in the console window.  If you are using an IDE
-    # in which you can inspect your variables, this will help you to
-    # identify which point on the screen is which point in your data
-    # structure.
-    #
-    # This is good to do, for example, after you have recursively
-    # built two hulls, to see that the two hulls look right.
-    #
-    # This can also be done immediately after you have merged to hulls
-    # ... again, to see that the merged hull looks right.
-    #
-    # Always after you have inspected things, you should remove the
-    # highlighting from the points that you previously highlighted.
-
-    for p in points:
-        p.highlight = True
-    display(wait=True)
-
-    # At the very end of buildHull(), you should display the result
-    # after every merge, as shown below.  This call to display() does
-    # not pause.
+        # merge the hulls, get the top_left point to use when deleting ptrs
+        top_left = mergeHull(leftSide, rightSide)
     
+        # delete irrelevant pointers, starting at the top_left point
+        # first find all points on the hull
+        hullPoints = []
+        hullPoints.append(top_left)
+        p = top_left.cwPoint
+        # make a full loop and get every point on the hull
+        while p != top_left:
+            hullPoints.append(p)
+            p = p.cwPoint   # go to next point
+        
+        # if the point is not part of the hull, get rid of ptrs
+        for p in points:
+            if p not in hullPoints:
+                p.cwPoint = p.ccwPoint = None
+
     display()
 
-  
 
 windowLeft   = None
 windowRight  = None
